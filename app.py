@@ -1,11 +1,14 @@
 from __future__ import print_function # In python 2.7
 
-from twilio.twiml import Response
+from twilio import twiml
 
 from twilio.rest import Client
 
 from flask import Flask, jsonify
 from flask import request, redirect
+
+from flask import Flask, request, redirect
+from twilio.twiml.messaging_response import MessagingResponse
 
 
 import sys
@@ -124,20 +127,29 @@ def send_WP_message():
 	args = request.args
 	to = args['to']
 	message = args['message']
+	
+	
+	from twilio.rest import Client
 
 	account_sid = 'ACe58e52bde56b9659bb7dfe80653d31b6'
 	auth_token = '4572801f338e4e4f94d4772985e130ec'
-	wpclient = Client(account_sid, auth_token)
-	message = wpclient.messages.create(
+	client = Client(account_sid, auth_token)
+
+	message = client.messages.create(
 					body=message,
 					from_='whatsapp:+14155238886',
-					to='whatsapp:' + to
+					to='whatsapp:+16319979047'
 				)
+
+	print(message.sid)
+
+	return "Success"
 
 @app.route('/getWhatsAppMessage', methods=['POST'])
 def handle_get_WP_message():
-	resp = Response()
-	resp.message("Ahoy! Thanks so much for your message.")
+	body = request.values.get('Body', None)
+	resp = MessagingResponse()
+	resp.message(body)
 	return str(resp)
 
 if __name__ == '__main__':
