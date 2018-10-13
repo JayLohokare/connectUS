@@ -1,6 +1,13 @@
 from __future__ import print_function # In python 2.7
+
+from twilio.twiml import Response
+
+from twilio.rest import Client
+
 from flask import Flask, jsonify
-from flask import request
+from flask import request, redirect
+
+
 import sys
 import logging
 import sys
@@ -19,7 +26,7 @@ firebase_admin.initialize_app(cred, {
 
 	
 # 127.0.0.1:5000/register?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
-@app.route('/register', methods=['GET'])
+@app.route('/registerPatron', methods=['GET'])
 def register_patron():
 	args = request.args
 	phone = args['phone']
@@ -33,6 +40,27 @@ def register_patron():
 	
 	root = db.reference()
 	ref  = root.child('patron')	
+	userRef = ref.push(data)
+	return "Success"
+
+
+@app.route('/registerImmigrant', methods=['GET'])
+def register_immigrant():
+	args = request.args
+	phone = args['phone']
+	name = args['name']
+	patronPhone = args['patronPhone']
+
+	val = list(db.reference('patron').order_by_child("phone").equal_to(patronPhone).get().values())[0]
+	location = val['location']
+	nationality = val['nationality']
+	groupName = val['groupName']
+	messengerType = val['messengerType']
+	
+	data = {"name":name, "phone": phone, "location": location, "patronPhone": patronPhone, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}
+	
+	root = db.reference()
+	ref  = root.child('immigrants')	
 	userRef = ref.push(data)
 	return "Success"
 
@@ -90,6 +118,27 @@ def get_queries():
 		val = list(db.reference('queries').get().values())
 	
 	return str(val)
+
+@app.route('/sendWhatsAppMessage', methods=['GET'])
+def send_WP_message():
+	args = request.args
+	to = args['to']
+	message = args['message']
+
+	account_sid = 'ACe58e52bde56b9659bb7dfe80653d31b6'
+	auth_token = '4572801f338e4e4f94d4772985e130ec'
+	wpclient = Client(account_sid, auth_token)
+	message = wpclient.messages.create(
+					body=message,
+					from_='whatsapp:+14155238886',
+					to='whatsapp:' + to
+				)
+
+@app.route('/getWhatsAppMessage', methods=['POST'])
+def handle_get_WP_message():
+	resp = Response()
+	resp.message("Ahoy! Thanks so much for your message.")
+	return str(resp)
 
 if __name__ == '__main__':
     app.run(debug=True)
