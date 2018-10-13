@@ -148,8 +148,26 @@ def send_WP_message():
 @app.route('/getWhatsAppMessage', methods=['POST'])
 def handle_get_WP_message():
 	body = request.values.get('Body', None)
+
+	from TwitterAPI import TwitterAPI
+  
+	# personal details 
+	consumer_key ="5YGcUrIGaEk9HMo9niSiv3elv"
+	consumer_secret ="3QPKtpIUtWb2m1NWmjhKi4szhCporKOEC84sEJer9Oo8VHazx3"
+	access_token ="2405586890-Gj5ThOKtDIedJneZhXeNpV2WL8S5zLxgBk17O69"
+	access_token_secret ="f2wBmpZ23mFahiK3P7sjgONPFqSymawL7ZU8Yxh8fyFEG"
+	
+	api = TwitterAPI(consumer_key,
+                 consumer_secret,
+                 access_token,
+                 access_token_secret)
+
+	r = api.request('statuses/update', {'status': body})
+	print ('SUCCESS' if r.status_code == 200 else 'FAILURE')
+
 	resp = MessagingResponse()
 	resp.message(body)
+
 	return str(resp)
 
 if __name__ == '__main__':
