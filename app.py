@@ -60,13 +60,36 @@ def post_events():
 def get_events():
 	args = request.args
 	if "location" in args:
-		val = list(db.reference('patron').order_by_child("location").equal_to(args['location']).get().values())
+		val = list(db.reference('events').order_by_child("location").equal_to(args['location']).get().values())
 	else:
-		val = list(db.reference('patron').get().values())
+		val = list(db.reference('events').get().values())
 	
 	return str(val)
 
 			
+@app.route('/postQuery', methods=['GET'])
+def post_query():
+	args = request.args
+	phoneNumber = args['phone']
+	nationality = args['nationality']
+	messenger = args['messenger']
+	query = args['query']
+	
+	data = {"phone":phoneNumber, "nationality": nationality, "messenger": messenger, "query": query}
+	root = db.reference()
+	new_user = root.child('queries').push(data)
+
+	return "Success"
+
+@app.route('/getQuery', methods=['GET'])
+def get_queries():
+	args = request.args
+	if "location" in args:
+		val = list(db.reference('queries').order_by_child("location").equal_to(args['location']).get().values())
+	else:
+		val = list(db.reference('queries').get().values())
+	
+	return str(val)
 
 if __name__ == '__main__':
     app.run(debug=True)
