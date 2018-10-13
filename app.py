@@ -4,27 +4,23 @@ from flask import request
 import sys
 import logging
 import sys
-
-app = Flask(__name__)
-
 import firebase_admin
 from firebase_admin import credentials
-
 from firebase_admin import db
+
+
+app = Flask(__name__)
 
 cred = credentials.Certificate('service.json')
 firebase_admin.initialize_app(cred, {
    "databaseURL": "https://globalhacks7.firebaseio.com",
 })
 
-# 127.0.0.1:5000/register?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
 
-root = db.reference()
-ref  = root.child('patron')	
 	
-
+# 127.0.0.1:5000/register?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
 @app.route('/register', methods=['GET'])
-def get_tasks():
+def register_patron():
 	args = request.args
 	phone = args['phone']
 	location = args['location']
@@ -34,31 +30,41 @@ def get_tasks():
 	name = args['name']
 
 	data = {"name":name, "phone": phone, "location": location, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}
-
-	userRef = ref.push(data)
 	
-	return phone
+	root = db.reference()
+	ref  = root.child('patron')	
+	userRef = ref.push(data)
+	return "Success"
 
 
+#127.0.0.1:5000/postEvent?event=LOLOLOL&patronPhone=12345&messengerType=FB
 @app.route('/postEvent', methods=['GET'])
 def post_events():
 	args = request.args
 	eventData = args['event']
+	messengerType = args['messengerType']
 	patronNumber = str(args['patronPhone'])
 
 	val = list(db.reference('patron').order_by_child("phone").equal_to(patronNumber).get().values())[0]
-	
 	location = val['location']
 	nationality = val['nationality']
-	messengerType = "Whatsapp"#This comes via Twilio""
 	groupName = val['groupName']
-	
 	data = {"event":eventData, "patronPhone": patronNumber, "location": location, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}
-
 	root = db.reference()
 	new_user = root.child('events').push(data)
 
 	return "Success"
+
+#http://127.0.0.1:5000/getEvent?location=NYC
+@app.route('/getEvent', methods=['GET'])
+def get_events():
+	args = request.args
+	if "location" in args:
+		val = list(db.reference('patron').order_by_child("location").equal_to(args['location']).get().values())
+	else:
+		val = list(db.reference('patron').get().values())
+	
+	return str(val)
 
 			
 
