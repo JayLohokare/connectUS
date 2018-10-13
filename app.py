@@ -12,11 +12,18 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 
 import sys
+import string
+import random
 import logging
 import sys
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+
+import difflib
+import csv
+import requests
+				
 
 
 app = Flask(__name__)
@@ -27,7 +34,6 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-	
 # 127.0.0.1:5000/register?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
 @app.route('/registerPatron', methods=['GET'])
 def register_patron():
@@ -83,7 +89,6 @@ def post_events():
 	data = {"event":eventData, "patronPhone": patronNumber, "location": location, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}
 	root = db.reference()
 	new_user = root.child('events').push(data)
-
 	return "Success"
 
 #http://127.0.0.1:5000/getEvent?location=NYC
@@ -98,37 +103,76 @@ def get_events():
 	return str(val)
 
 			
-@app.route('/postQuery', methods=['GET'])
+@app.route('/postQuery', methods=['POST'])
 def post_query():
-	args = request.args
-	phoneNumber = args['phone']
-	nationality = args['nationality']
-	messenger = args['messenger']
-	query = args['query']
+
+
+	body = request.values.get('Body', None).lower()
+	phoneNumber = request.values.get('From')
 	
-	data = {"phone":phoneNumber, "nationality": nationality, "messenger": messenger, "query": query}
+	receiver = ""
+	
+	if body[0:2].lower() == "id":
+		receiver = ""
+		i = 2
+		while i < 22:
+			receiver += body[i]
+			i += 2
+		
+		requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + receiver + "&message=" + body[24:])
+		return "Success"
+	#whatsapp://send?text=Hello World!&phone=+9198********1
+
+	args = request.args
+	nationality = "Spanish" #Hardcoded as a number corresponds to only one language
+
+	textBody = ""
+
+	region = ""
+	#Region extraction
+	placesDict = {"saint louis", "new york", "san diego", "las vegas", "los angeles", "san francisco"}
+	for i in placesDict:
+		if i in body:
+			region = i
+
+	foundFAQ = False
+	with open('FAQs.csv', encoding="utf8") as csv_file:
+		csv_reader = csv.reader(csv_file, delimiter=',')
+		line_count = 0
+		for row in csv_reader:
+			question = str(row[0])
+			if question == body:
+				foundFAQ = True
+				requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber + "&message=" + str(row[1]) )
+				break
+				
+		if not foundFAQ:
+			#Send question to the a patrons in area
+			# deepLink = "https://wa.me/14155238886&text="+phoneNumber[1:]
+			enc = ""
+			for i in phoneNumber[10:]:
+				enc += (i)
+				enc+= random.choice(string.ascii_letters)
+			message =   "Someone needs your help \nHere is the question: \n" + body + "\n" + "https://wa.me/14155238886?text=ID" + enc + "\n\n"
+
+			requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber + "&message=" + message )
+				
+			
+	data = {"phone":phoneNumber, "nationality": nationality, "query": textBody, "region":region}
 	root = db.reference()
 	new_user = root.child('queries').push(data)
 
 	return "Success"
 
-@app.route('/getQuery', methods=['GET'])
-def get_queries():
-	args = request.args
-	if "location" in args:
-		val = list(db.reference('queries').order_by_child("location").equal_to(args['location']).get().values())
-	else:
-		val = list(db.reference('queries').get().values())
-	
-	return str(val)
+
+
 
 @app.route('/sendWhatsAppMessage', methods=['GET'])
 def send_WP_message():
 	args = request.args
 	to = args['to']
 	message = args['message']
-	
-	
+		
 	from twilio.rest import Client
 
 	account_sid = 'ACe58e52bde56b9659bb7dfe80653d31b6'
@@ -145,7 +189,20 @@ def send_WP_message():
 
 	return "Success"
 
+@app.route('/getQuery', methods=['GET'])
+def get_queries():
+	args = request.args
+	if "location" in args:
+		val = list(db.reference('queries').order_by_child("location").equal_to(args['location']).get().values())
+	else:
+		val = list(db.reference('queries').get().values())
+	
+	return str(val)
+
+
+
 @app.route('/getWhatsAppMessage', methods=['POST'])
+#Broadcast here
 def handle_get_WP_message():
 	body = request.values.get('Body', None)
 
@@ -168,7 +225,11 @@ def handle_get_WP_message():
 	resp = MessagingResponse()
 	resp.message(body)
 
+	#body
+
 	return str(resp)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
