@@ -124,7 +124,6 @@ def post_query():
     except:
         pass
 
-    print(body.values)
     body = request.values.get('Body', None).lower()
 
     phoneNumber = request.values.get('From')
