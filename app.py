@@ -42,7 +42,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-# 127.0.0.1:5000/register?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
+# https://gh7-jay.appspot.com:80/registerPatron?phone=1234&name=Jay&location=saintLouis&nationality=Indian&messengerType=Whatsapp&groupName=Trial
 @app.route('/registerPatron', methods=['GET'])
 def register_patron():
 	args = request.args
@@ -99,6 +99,9 @@ def post_events():
 	new_user = root.child('events').push(data)
 	return "Success"
 
+
+
+
 #http://127.0.0.1:5000/getEvent?location=NYC
 @app.route('/getEvent', methods=['GET'])
 def get_events():
@@ -110,11 +113,14 @@ def get_events():
 	
 	return str(val)
 
+
+
+
 			
 @app.route('/postQuery', methods=['POST'])
 def post_query():
 
-	thisNationality = "Mexican" #Hardcoded as a number corresponds to only one language
+	thisNationality = "English" #Hardcoded as a number corresponds to only one language
 
 	try:
 		if request.values.get('sound'):
@@ -133,6 +139,16 @@ def post_query():
 				phNo = i['phone']
 				requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phNo + "&message=" + message )
 		
+			region = ""
+			#Region extraction
+			placesDict = {"saint louis", "new york", "san diego", "las vegas", "los angeles", "san francisco"}
+			for i in placesDict:
+				if i in body:
+					region = i
+
+			data = {"phone":sender, "nationality": thisNationality, "query": body, "region":region}
+			root = db.reference()
+			new_user = root.child('queries').push(data)
 
 			return "SUCCESS"
 		
