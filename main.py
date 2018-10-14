@@ -12,6 +12,7 @@ from firebase_admin import db
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.twiml.voice_response import VoiceResponse, Gather
+from whatsapp import send_message
 
 # Imports the Google Cloud client library
 
@@ -116,7 +117,7 @@ def post_query():
             val = list(db.reference('patron').order_by_child("nationality").equal_to(thisNationality).get().values())[0]
             for i in val:
                 phNo = i['phone']
-                requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phNo + "&message=" + message)
+                send_message(phNo, message)
 
             return "SUCCESS"
 
@@ -137,7 +138,7 @@ def post_query():
             receiver += body[i]
             i += 2
 
-        requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + receiver + "&message=" + body[24:])
+        send_message(receiver, body[24:])
         return "Success"
     # whatsapp://send?text=Hello World!&phone=+9198********1
 
@@ -160,7 +161,7 @@ def post_query():
             question = str(row[0])
             if question == body:
                 foundFAQ = True
-                requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber + "&message=" + str(row[1]))
+                send_message(phoneNumber, str(row[1]))
                 break
 
         if not foundFAQ:
@@ -175,9 +176,9 @@ def post_query():
             val = list(db.reference('patron').order_by_child("nationality").equal_to(thisNationality).get().values())[0]
             for i in val:
                 phNo = i['phone']
-                requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phNo + "&message=" + message)
+                send_message(phNo, message)
 
-    data = {"phone": phoneNumber, "nationality": nationality, "query": textBody, "region": region}
+    data = {"phone": phoneNumber, "nationality": thisNationality, "query": textBody, "region": region}
     root = db.reference()
     new_user = root.child('queries').push(data)
 
@@ -199,7 +200,7 @@ def send_WP_message():
     message = client.messages.create(
         body=message,
         from_='whatsapp:+14155238886',
-        to='whatsapp:+16319979047'
+        to='whatsapp:{}'.format(to)
     )
 
     print(message.sid)

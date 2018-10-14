@@ -8,6 +8,7 @@ __pycache__/
 # Ignore certificates
 service.json
 Global hacks 7-11ed3c5440e1.json
+twilio.json
 
 # User-specific stuff
 .idea/**/workspace.xml
