@@ -25,6 +25,13 @@ import difflib
 import csv
 import requests
 				
+import io
+import os
+
+# Imports the Google Cloud client library
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
 
 
 app = Flask(__name__)
@@ -107,6 +114,31 @@ def get_events():
 @app.route('/postQuery', methods=['POST'])
 def post_query():
 
+	thisNationality = "Mexican" #Hardcoded as a number corresponds to only one language
+
+	try:
+		if request.values.get('sound'):
+			sound = request.values.get('sound')
+			body = request.values.get('Body')
+			sender = request.values.get('From')
+
+			enc = ""
+			for i in sender[1:]:
+				enc += (i)
+				enc+= random.choice(string.ascii_letters)
+			message =   "Someone needs your help \nHere is the question: \n" + body + "\nYou have received an audio file" + "\n" + sound + "\n" + "https://wa.me/14155238886?text=ID" + enc + "\n\n"
+
+			val = list(db.reference('patron').order_by_child("nationality").equal_to(thisNationality).get().values())[0]
+			for i in val:
+				phNo = i['phone']
+				requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phNo + "&message=" + message )
+		
+
+			return "SUCCESS"
+		
+	except:
+		pass
+
 	print (body.values)
 	body = request.values.get('Body', None).lower()
 	
@@ -126,8 +158,7 @@ def post_query():
 	#whatsapp://send?text=Hello World!&phone=+9198********1
 
 	args = request.args
-	nationality = "Spanish" #Hardcoded as a number corresponds to only one language
-
+	
 	textBody = ""
 
 	region = ""
@@ -157,7 +188,10 @@ def post_query():
 				enc+= random.choice(string.ascii_letters)
 			message =   "Someone needs your help \nHere is the question: \n" + body + "\n" + "https://wa.me/14155238886?text=ID" + enc + "\n\n"
 
-			requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber + "&message=" + message )
+			val = list(db.reference('patron').order_by_child("nationality").equal_to(thisNationality).get().values())[0]
+			for i in val:
+				phNo = i['phone']
+				requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phNo + "&message=" + message )
 				
 			
 	data = {"phone":phoneNumber, "nationality": nationality, "query": textBody, "region":region}
@@ -237,11 +271,14 @@ def twiml(resp):
     resp.headers['Content-Type'] = 'text/xml'
     return resp
 
+
 @app.route("/handleVoiceResponse", methods=['GET', 'POST'])
 def handleVoiceREsponse():
 	soundURL = (request.values['RecordingUrl'])
+	print (request.values)
+	data = {'sound': soundURL, "From": request.values['From'], "Body": request.values['TranscriptionText']} 
 
-	return 'SUCCESS'
+	return 'Success'
 
 
 @app.route("/handleVoice", methods=['GET', 'POST'])
