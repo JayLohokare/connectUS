@@ -54,8 +54,7 @@ def register_patron():
 	groupName = args['groupName']
 	name = args['name']
 
-	data = {"name":name, "phone": phone, "location": location, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}
-	
+	data = {"name":name, "phone": phone, "location": location, "nationality": nationality, "messengerType": messengerType, "groupName": groupName}		
 	root = db.reference()
 	ref  = root.child('patron')	
 	userRef = ref.push(data)
@@ -168,17 +167,14 @@ def post_query():
 
 	foundFAQ = False
 	with open('FAQs.csv', encoding="utf8") as csv_file:
-		csv_reader=csv.reader(csv_file , delimiter=',')
-		line_count = 0
-		for row in csv_reader:
-			similarity = nlp(row[0].lower()).similarity(nlp(body.lower()))
-			print (similarity)
-			print (str(body), str(row[0]))
-			if similarity > 0.80:
-				print("It haooenbe")
-				foundFAQ = True
-				requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber[10:] + "&message=" + str(row[1]) )
-				break
+        csv_reader=csv.reader(csv_file,delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            similarity = question.similarity(nlp(body))
+            if similarity > 94:
+                foundFAQ = True
+                requests.get("http://127.0.0.1:5000/sendWhatsAppMessage?to=" + phoneNumber + "&message=" + str(row[1]) )
+                break
             
             
 				
