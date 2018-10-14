@@ -247,8 +247,7 @@ def get_queries():
 		val = list(db.reference('queries').order_by_child("location").equal_to(args['location']).get().values())
 	else:
 		val = list(db.reference('queries').get().values())
-	
-	return str(val)
+	return jsonify(val)
 
 
 
