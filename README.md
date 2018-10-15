@@ -35,6 +35,28 @@ The chatbot, SMS and call interfaces are all powered by Twilio (This repo has al
 Similar interface applies for sending events. posts accross various platforms. Community leaders can share selected posts/events to a chatbot availble on all platforms. The chatbot collects such posts from all platforms and sends them back to all community groups on their respective platforms. 
 All data backend is based on Firebase
 ```
+
+How to recreate the project:
+```
+Twilio - 
+1. Create new calling number, connect the incoming endpoint to /voice (Flask app)
+2. Create new whatsapp chatbot, connect incoming endpoint to /receiveWhatsapp (Flask app)
+3. Same for SMS, other social apps
+
+Firebase - 
+Flask app has endpoints to register community leaders, immigrants, events, queries. 
+The API auto creates Firebase DB structure
+
+API - 
+1. The API is based on Python-Flask.
+2. python main.py to start the server
+3. Use ngrox for tunneling to an globally accessible endpoint
+4. ngrox http PORT(5000)
+5. Use the ngrox endpoint on twilio
+6. API can be hosted on GCP as well (Repo 2 is based on GCP)
+```
+
+
 This repo - Handles query handling pipeline (Get queries on any platform, AI/Community answers queries)
 
 2nd repo - Social media broadcast (Forwarding events/posts to all social media platforms) - https://github.com/JayLohokare/twilio-boardcast-to-multiple-platforms
