@@ -35,5 +35,7 @@ The chatbot, SMS and call interfaces are all powered by Twilio (This repo has al
 Similar interface applies for sending events. posts accross various platforms. Community leaders can share selected posts/events to a chatbot availble on all platforms. The chatbot collects such posts from all platforms and sends them back to all community groups on their respective platforms. 
 ```
 This repo - Handles query handling pipeline (Get queries on any platform, AI/Community answers queries)
+
 2nd repo - Social media broadcast (Forwarding events/posts to all social media platforms) - https://github.com/JayLohokare/twilio-boardcast-to-multiple-platforms
+
 3rd repo - Dashboard to track activities of communities, common issues faced by immigrants, community stats mapped on dashboard - 
