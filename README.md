@@ -33,6 +33,7 @@ Technology used:
 ```
 The chatbot, SMS and call interfaces are all powered by Twilio (This repo has all chatbot and voice interfaces). Twilio collects the messages and triggers an endpoint (REST) written in Python Flask. The Flask server then uses data extracted by twilio, data extracted from voice using GCP NLP to search for answers in database. We use spacy python library to find similarity in sentences. If similarity > 80%, the corresponding answer is returned as answer. Else, the flask app creates a new ID code (Created from immigrants phone number) and sends a message over all social platforms to relevant communities (Relevance decided by language and location). The community leaders receive a message from our system (Extracted text, audio) along with Chatbot deep link to send reply to. When the community leader sends answer, the system extracts targeted immigrant contact number from the ID code, and sends the answer back to immigrant. At no phase is a query mapped with immigrant stored on a sever or made available to community leaders, in order to secure immigrant identity.
 Similar interface applies for sending events. posts accross various platforms. Community leaders can share selected posts/events to a chatbot availble on all platforms. The chatbot collects such posts from all platforms and sends them back to all community groups on their respective platforms. 
+All data backend is based on Firebase
 ```
 This repo - Handles query handling pipeline (Get queries on any platform, AI/Community answers queries)
 
