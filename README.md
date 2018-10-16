@@ -7,7 +7,7 @@ Awareness and, Feeling of safety that comes by being with someone who we connect
 
 We hence thought of creating a solution that would help immigrants reach out to someone in times of needs. A platform that could foster local communities and help them go beyond geographic, lingual, economic and cultural boundaries.
 
-```
+
 1. We have created a system that seamlessly integrates with existing technologies (NO NEW APPS to be installed/Websites to be accessed by immigrants) to help communities connect with each other across multiple technological platforms. Some communities use Whatsapp, some use Facebook (others use other social media platforms). The divide between communities is not only ideological, but also technological. The immigrant/Refugee communities are already hesitant to open up to the world, even to their sister communities. The system we have implemented enables one click sharing of data, news, events, cultural uniqueness beyond such social media platforms and beyond physical boundaries -
 Based on preferences, an immigrant can get updates from all over the world, from all social platforms into the platform of their choice. Imagine a refugee from Africa getting information about benefits, getting to know experience of people from other corner of the country/world. Imagine an American person getting information about all cultural richness of various immigrant communities on platform of his/her preference. The cross platform nature of this system allows communities to reach out to other communities, plan out events, help finding jobs, and learn to appreaciate each other. Those who are not tech-savy can get all the data from Whatsapp, Facebook, Linkedin, etc via SMS or even via voice mails (In language of choice)!
 
@@ -16,7 +16,7 @@ Based on preferences, an immigrant can get updates from all over the world, from
 3. Portal for organizations to gain insights into behaviors, demands and requirements of immigrants through interactive dashboard and visualizations. Data collected through the communities (Via our social platform and query answering engine) is anonymized and made available so that organizations can use it for making policies to help immigrants/refugees
 
 The system starts at chatbots built on all platforms, connected to single backend powered by Twilio. We exploited the programmatic voice and programmatic messages system part of twilio's free tier to build our ubiquitous chatbots (Based on every social media platforms, SMS, MMS, traditional calls). We use Google cloud platform to host our backend (written in Flask-Python) and to power our Natural Language processing and multi-lingual query processing. Our database, user management system is based on Firebase. 
-```
+
 
 Example usecase:
 ```
